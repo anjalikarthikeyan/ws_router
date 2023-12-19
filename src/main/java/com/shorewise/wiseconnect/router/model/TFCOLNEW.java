@@ -6,10 +6,10 @@ import javax.xml.bind.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 @Getter
 @Setter
-@XmlAccessorType(XmlAccessType.FIELD)
-public class TFSHGAPP {
+public class TFCOLNEW {
 
     @XmlElement(name = "EventNotificationss", namespace = "urn:messages.service.ti.apps.tiplus2.misys.com")
     private EventNotificationss eventNotificationss;
@@ -26,25 +26,20 @@ public class TFSHGAPP {
     @XmlElement(name = "LCAmount", namespace = "urn:messages.service.ti.apps.tiplus2.misys.com")
     private LCAmount lCAmount;
     
-
     @XmlElement(name = "Revocable", namespace = "urn:messages.service.ti.apps.tiplus2.misys.com")
-    private Revocable revocable;
-    
+    private Revocable revocable;  
     
     @XmlElement(name = "Revolving", namespace = "urn:messages.service.ti.apps.tiplus2.misys.com")
     private Revolving revolving;
-    
-    
+       
     @XmlElement(name = "ApplicationDate", namespace = "urn:messages.service.ti.apps.tiplus2.misys.com")
     private String  applicationDate;
     
     @XmlElement(name = "IssueDate", namespace = "urn:messages.service.ti.apps.tiplus2.misys.com")
-    private String issueDate;
-    
+    private String issueDate;    
     
     @XmlElement(name = "TermsOfPayment", namespace = "urn:messages.service.ti.apps.tiplus2.misys.com")
-    private TermsOfPayment termsOfPayment;
-    
+    private TermsOfPayment termsOfPayment;   
     
     @XmlElement(name = "eBankMasterRef", namespace = "urn:messages.service.ti.apps.tiplus2.misys.com")
     private String eBankMasterRef;
@@ -60,8 +55,7 @@ public class TFSHGAPP {
     
     @XmlElement(name = "AmendmentNarrative", namespace = "urn:messages.service.ti.apps.tiplus2.misys.com")
     private String amendmentNarrative;
-    
-    
+     
     @XmlElement(name = "AmendDate", namespace = "urn:messages.service.ti.apps.tiplus2.misys.com")
     private String amendDate;
     

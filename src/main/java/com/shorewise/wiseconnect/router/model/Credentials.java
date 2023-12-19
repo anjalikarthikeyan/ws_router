@@ -1,6 +1,11 @@
 package com.shorewise.wiseconnect.router.model;
 import javax.xml.bind.annotation.*;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Credentials {
 
@@ -16,37 +21,4 @@ public class Credentials {
     @XmlElement(name = "Digest")
     private String digest;
 
-	public String getName() {
-		return name;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public String getCertificate() {
-		return certificate;
-	}
-
-	public String getDigest() {
-		return digest;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public void setCertificate(String certificate) {
-		this.certificate = certificate;
-	}
-
-	public void setDigest(String digest) {
-		this.digest = digest;
-	}
-
-    
 }

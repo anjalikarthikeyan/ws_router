@@ -1,6 +1,11 @@
 package com.shorewise.wiseconnect.router.model;
 import javax.xml.bind.annotation.*;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RequestHeader {
 
@@ -28,70 +33,6 @@ public class RequestHeader {
     @XmlElement(name = "TransactionControl")
     private String transactionControl;
 
-	public String getService() {
-		return service;
-	}
-
-	public String getOperation() {
-		return operation;
-	}
-
-	public String getReplyFormat() {
-		return replyFormat;
-	}
-
-	public String getSourceSystem() {
-		return sourceSystem;
-	}
-
-	public String getNoRepair() {
-		return noRepair;
-	}
-
-	public String getNoOverride() {
-		return noOverride;
-	}
-
-	public String getCorrelationId() {
-		return correlationId;
-	}
-
-	public String getTransactionControl() {
-		return transactionControl;
-	}
-
-	public void setService(String service) {
-		this.service = service;
-	}
-
-	public void setOperation(String operation) {
-		this.operation = operation;
-	}
-
-	public void setReplyFormat(String replyFormat) {
-		this.replyFormat = replyFormat;
-	}
-
-	public void setSourceSystem(String sourceSystem) {
-		this.sourceSystem = sourceSystem;
-	}
-
-	public void setNoRepair(String noRepair) {
-		this.noRepair = noRepair;
-	}
-
-	public void setNoOverride(String noOverride) {
-		this.noOverride = noOverride;
-	}
-
-	public void setCorrelationId(String correlationId) {
-		this.correlationId = correlationId;
-	}
-
-	public void setTransactionControl(String transactionControl) {
-		this.transactionControl = transactionControl;
-	}
-
-	 @XmlElement(name = "Credentials")
-	    private Credentials credentials;
+	@XmlElement(name = "Credentials")
+	private Credentials credentials;
 }

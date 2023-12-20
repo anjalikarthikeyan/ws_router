@@ -22,6 +22,9 @@ public class TransactionalXml implements Serializable  {
     @Column(name = "xml_data", length = 20000)
     private String xmlData;
 
+    @Column(name = "operation_type", length = 8)
+    private String operation_type;
+    
     @Column(name = "status", length = 24)
     private String status;
 

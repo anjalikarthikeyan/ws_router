@@ -2,6 +2,8 @@ package com.shorewise.wiseconnect.router.beanprocessor;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.xml.XMLConstants;
@@ -18,6 +20,10 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.shorewise.wiseconnect.router.entity.TransactionalXml;
+import com.shorewise.wiseconnect.router.repository.TransactionalXmlRepository;
+
 import org.xml.sax.InputSource;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +33,9 @@ public class DataStoreBeanProcessor {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
+    @Autowired
+    private TransactionalXmlRepository transactionalXmlRepository;
     
     private static final Logger logger = LogManager.getLogger(DataStoreBeanProcessor.class);
 
@@ -40,7 +49,7 @@ public class DataStoreBeanProcessor {
     	String user = extractUserFrom(body); // And the user
     	UUID uuid = UUID.randomUUID();
     	String uuidString = uuid.toString();
-    	String id = "d55cae9f-c859-4a81-ae33-bc27f1250edc";//extractUUIDFrom(body);
+    	String id = "d55cae9f-c859-4a81-ae33-bc27f1250ed";//extractUUIDFrom(body);
     	xmlParser(body);
     	//recordExists(id);
     	// SQL statement with placeholders for parameters
@@ -53,9 +62,9 @@ public class DataStoreBeanProcessor {
     			+ "updated_at = CURRENT_TIMESTAMP WHERE id = ?";
 
     	try {
-    		if(!recordExists(id)) {
+    		if(!checkifRecordsExists(id)) {
     			logger.info("Inserting record into database");
-    			int res = insertRecord(insertSQL, uuidString, xmlData, operation, status, user);
+    			insertRecord(insertSQL, uuidString, xmlData, operation, status, user);
     			logger.info("Record inserted successfully with ID: " + uuidString);
     		}
     		else {
@@ -63,7 +72,7 @@ public class DataStoreBeanProcessor {
     			logger.info("Updating record in database");
     			System.out.println("Update SQL: UPDATE xml_storage.transactional_xml SET xml_data = '"+ xmlData + "', operation_type= '"+operation+"', status = '" + status +
     					"', updated_user = '"+ user +"',updated_at = CURRENT_TIMESTAMP WHERE id = '"+id+'\'');
-    			int res = updateRecord(updateSQL, xmlData, operation, status, user, id);
+    			updateRecord(updateSQL, xmlData, operation, status, user, id);
     			logger.info("Record updated successfully for ID: " + id);
     		}
     	}
@@ -78,10 +87,17 @@ public class DataStoreBeanProcessor {
     	}
     }
     
+    
+	/*
+	 * private boolean recordExists(String id) { String sql =
+	 * "SELECT * from xml_storage.transactional_xml where id = '"+id+"'"; return
+	 * !jdbcTemplate.queryForList(sql).isEmpty(); }
+	 */
+    
     //Check if entry already exists in database
-    private boolean recordExists(String id) {
-    	String sql = "SELECT * from xml_storage.transactional_xml where id = '"+id+"'";
-    	return !jdbcTemplate.queryForList(sql).isEmpty();
+    public boolean checkifRecordsExists(String id) {
+        Optional<TransactionalXml> records = transactionalXmlRepository.findById(id);
+        return !records.isEmpty();
     }
     
     //Insert new entry into xml_storage.transactional_xml

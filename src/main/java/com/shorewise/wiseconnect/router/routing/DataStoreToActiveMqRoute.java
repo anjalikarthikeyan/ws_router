@@ -1,70 +1,79 @@
 package com.shorewise.wiseconnect.router.routing;
 
-import java.util.List;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.Processor;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
-import org.apache.camel.LoggingLevel;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.rest.RestBindingMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import com.shorewise.wiseconnect.router.repository.TransactionalXmlRepository;
-import com.shorewise.wiseconnect.router.entity.TransactionalXml;
+import com.shorewise.wiseconnect.router.model.TransactionalXmlDto;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class DataStoreToActiveMqRoute extends RouteBuilder {
 
     @Autowired
-    private TransactionalXmlRepository transactionalXmlRepository;
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public void configure() {
-        // Configure REST DSL for Swagger support
-        restConfiguration()
-            .component("servlet")
-            .bindingMode(RestBindingMode.json)
-            .dataFormatProperty("prettyPrint", "true")
-            .apiContextPath("/api-doc")
-                .apiProperty("api.title", "DataStore to ActiveMQ Route")
-                .apiProperty("api.version", "1.0");
 
-        // Define REST endpoint
-        rest("/datastore")
-            .post("/toActiveMQ")
-            .produces(MediaType.APPLICATION_JSON_VALUE)
-            .route()
-                .to("direct:readAndSendToActiveMQ")
-            .endRest();
+        // REST API endpoint configuration
+        rest("/wiseconnect")
+            .post("/datastoreToActiveMQ")
+                .route()
+                .to("direct:processData")
+                .endRest();
 
-        // Define Camel route
-        from("direct:readAndSendToActiveMQ")
-            .routeId("datastore-to-activemq-route")
-            .log(LoggingLevel.INFO, "Fetching 'received' records from the database")
-            .bean(this, "fetchRecords")
-            .split(body())  // Serialize to XML
-                .log(LoggingLevel.INFO, "Sending record to ActiveMQ")
-                // Removed JSON marshaling, handle as XML
-                .setExchangePattern(ExchangePattern.InOnly)
-                .to("activemq:queue:ProcessedQueueData")
-                .bean(this, "updateRecordStatus")
-                .log(LoggingLevel.INFO, "Record status updated to 'processed'")
-            .end();
-    }
-
-    public List<TransactionalXml> fetchRecords() {
-        List<TransactionalXml> records = transactionalXmlRepository.findByStatus("Received");
-        if (records.isEmpty()) {
-            log.info("No 'received' records found in the database.");
-        } else {
-            records.forEach(record -> log.info("Fetched record with ID: {}", record.getId()));
-        }
-        return records;
-    }
-
-    public void updateRecordStatus(TransactionalXml record) {
-        record.setStatus("Processed");
-        transactionalXmlRepository.save(record);
-        log.info("Updated record status to 'processed' for ID: {}", record.getId());
+        // Route to process data
+        from("direct:processData")
+            .to("sql:select * from xml_storage.transactional_xml where status = 'Received'?dataSource=dataSource")
+            .process(new Processor() {
+                @Override
+                public void process(Exchange exchange) throws Exception {
+                    List<Map<String, Object>> rows = exchange.getIn().getBody(List.class);
+                    if (rows.isEmpty()) {
+                        exchange.getIn().setBody("No records to process");
+                        exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
+                        return;
+                    }
+                    List<TransactionalXmlDto> records = new ArrayList<>();
+                    for (Map<String, Object> row : rows) {
+                        TransactionalXmlDto record = new TransactionalXmlDto();
+                        record.setId((String) row.get("id"));
+                        record.setXmlData((String) row.get("xml_data"));
+                        record.setStatus((String) row.get("status"));
+                        record.setCreatedUser((String) row.get("created_user"));
+                        records.add(record);
+                    }
+                    exchange.getIn().setBody(records);
+                }
+            })
+            .split(body())
+            .process(new Processor() {
+                @Override
+                public void process(Exchange exchange) throws Exception {
+                    TransactionalXmlDto record = exchange.getIn().getBody(TransactionalXmlDto.class);
+                    if (record != null && record.getXmlData() != null && !record.getXmlData().isEmpty()) {
+                        exchange.getIn().setBody(record.getXmlData());
+                        jdbcTemplate.update("UPDATE xml_storage.transactional_xml SET status = 'Processed' WHERE id = ?", record.getId());
+                    }
+                }
+            })
+            .marshal().jaxb()
+            .setExchangePattern(ExchangePattern.InOut)
+            .to("activemq:queue:ProcessedQueue")
+            .process(exchange -> {
+                String messageBody = exchange.getIn().getBody(String.class);
+                // Process the message as needed
+                String response = "Processed: " + messageBody;
+                exchange.getIn().setBody(response);
+            })
+            .to("activemq:queue:${header.JMSReplyTo}"); // Send reply to the queue in JMSReplyTo header
+    	
     }
 }

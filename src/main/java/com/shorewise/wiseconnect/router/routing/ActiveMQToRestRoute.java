@@ -26,8 +26,8 @@ public class ActiveMQToRestRoute extends RouteBuilder {
             .apiProperty("cors", "true");
 
         // REST endpoint to trigger ActiveMQ consumption
-        rest("/wiseconnect/processQueueMessages")
-            .post()
+        rest("/wiseconnect")
+            .get("/transactions/view-processed")
             .route()
             .to("direct:startActiveMqConsumption")
             .process(exchange -> logger.info("ActiveMQ consumption route triggered"))
@@ -36,7 +36,7 @@ public class ActiveMQToRestRoute extends RouteBuilder {
         from("direct:startActiveMqConsumption")
             .setExchangePattern(ExchangePattern.InOnly)
             .process(exchange -> logger.info("Starting ActiveMQ consumption"))
-            .pollEnrich("activemq:queue:Ingress", (oldExchange, newExchange) -> {
+            .pollEnrich("activemq:queue:Processed", (oldExchange, newExchange) -> {
                 // Here you can aggregate or combine the messages as needed
                 if (oldExchange == null) {
                     return oldExchange;

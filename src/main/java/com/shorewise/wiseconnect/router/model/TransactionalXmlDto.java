@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement // Add this annotation to specify the root element for XML
-public class TransactionalXmlDto {
+public class TransactionalXmlDto  {
 
   	private String id;
     private String xmlData;

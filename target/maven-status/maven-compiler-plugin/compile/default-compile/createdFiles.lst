@@ -7,7 +7,6 @@ com/shorewise/wiseconnect/router/beanprocessor/DataStoreBeanProcessor.class
 com/shorewise/wiseconnect/router/model/Sender.class
 com/shorewise/wiseconnect/router/model/EventNotificationss.class
 com/shorewise/wiseconnect/router/model/ServiceRequest.class
-com/shorewise/wiseconnect/router/routing/DataStoreToActiveMqRoute$1.class
 com/shorewise/wiseconnect/router/model/package-info.class
 com/shorewise/wiseconnect/router/model/Credentials.class
 com/shorewise/wiseconnect/router/model/Context.class
@@ -19,7 +18,6 @@ com/shorewise/wiseconnect/router/model/TermsOfPayment.class
 com/shorewise/wiseconnect/router/routing/ActiveMQToRestRoute.class
 com/shorewise/wiseconnect/router/model/TFSHGAPP.class
 com/shorewise/wiseconnect/router/model/Applicant.class
-com/shorewise/wiseconnect/router/routing/DataStoreToActiveMqRoute$2.class
 com/shorewise/wiseconnect/router/model/MasterRef.class
 com/shorewise/wiseconnect/router/model/LCAmount.class
 com/shorewise/wiseconnect/router/model/TransactionalXmlDto.class

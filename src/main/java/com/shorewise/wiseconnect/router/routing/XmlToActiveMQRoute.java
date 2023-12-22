@@ -1,6 +1,6 @@
 package com.shorewise.wiseconnect.router.routing;
 
-import java.util.List;
+
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
@@ -29,8 +29,8 @@ public class XmlToActiveMQRoute extends RouteBuilder {
             .apiProperty("cors", "true"); // Enable CORS if needed
 
         // Define REST service
-        rest("/wiseconnect/xmlToActiveMq")
-            .post()
+        rest("/wiseconnect")
+            .post("/transactions/submitTomq")
             .consumes(MediaType.APPLICATION_XML_VALUE)
             .produces(MediaType.APPLICATION_JSON_VALUE)
             .type(ServiceRequest.class)

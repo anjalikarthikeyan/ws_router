@@ -1,13 +1,19 @@
 package com.shorewise.wiseconnect.router.datasource;
 
+import org.apache.activemq.spring.ActiveMQConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+
+import java.util.Arrays;
 
 import javax.sql.DataSource;
 
 @Configuration
 public class DataSourceConfig {
+	
+	
 
     @Bean(name = "dataSource")
     public DataSource dataSource() {
@@ -19,6 +25,13 @@ public class DataSourceConfig {
         return dataSource;
     }
     
+    
+    @Bean
+    public ActiveMQConnectionFactory connectionFactory(){
+    	ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+    	factory.setTrustedPackages(Arrays.asList("java.lang","com.shorewise.wiseconnect.router.entity"));
+		return factory;
+    }
 	/*
 	 * @Bean(name = "dataSource") public DataSource dataSource() {
 	 * DriverManagerDataSource dataSource = new DriverManagerDataSource();
